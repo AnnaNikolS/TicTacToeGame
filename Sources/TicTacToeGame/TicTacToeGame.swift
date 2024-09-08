@@ -8,23 +8,25 @@ public protocol TicTacToeViewDelegate: AnyObject {
 }
 
 public class TicTacToeView: UIView {
-    private let squareSize: CGFloat = UIScreen.main.bounds.height / 8
     private let spacing: CGFloat = 8
     private let gridDimension = 3
     private var currentPlayer: Player = .x
     private var gameBoard: [[Player?]] = Array(repeating: Array(repeating: nil, count: 3), count: 3)
     private var squares: [[UIView]] = []
     
+    private var squareSize: CGFloat
     private var cellColor: UIColor
     public weak var delegate: TicTacToeViewDelegate?
 
-    public init(frame: CGRect, cellColor: UIColor = .gray) {
+    public init(frame: CGRect, squareSize: CGFloat, cellColor: UIColor = .gray) {
+        self.squareSize = squareSize
         self.cellColor = cellColor
         super.init(frame: frame)
         setupView()
     }
     
     required init?(coder: NSCoder) {
+        self.squareSize = UIScreen.main.bounds.height / 8 // Значение по умолчанию
         self.cellColor = .gray
         super.init(coder: coder)
         setupView()
@@ -62,23 +64,19 @@ public class TicTacToeView: UIView {
         let row = square.tag / gridDimension
         let col = square.tag % gridDimension
         
-        // Если клетка уже занята, игнорируем нажатие
         if gameBoard[row][col] != nil {
             return
         }
         
-        // Установить текущее состояние игрока
         gameBoard[row][col] = currentPlayer
         updateSquare(square, with: currentPlayer)
         
-        // Проверить победу или ничью
         if let winningCombination = checkWin(for: currentPlayer) {
             highlightWinningCombination(winningCombination)
             delegate?.gameDidEnd(withMessage: "\(currentPlayer.rawValue) выиграл!")
         } else if isBoardFull() {
             delegate?.gameDidEnd(withMessage: "Ничья!")
         } else {
-            // Переключить игрока
             currentPlayer = (currentPlayer == .x) ? .o : .x
         }
     }
@@ -98,7 +96,6 @@ public class TicTacToeView: UIView {
     }
     
     private func checkWin(for player: Player) -> [(Int, Int)]? {
-        // Проверка строк, колонок и диагоналей
         for i in 0..<gridDimension {
             if gameBoard[i].allSatisfy({ $0 == player }) {
                 return (0..<gridDimension).map { (i, $0) }
@@ -108,7 +105,6 @@ public class TicTacToeView: UIView {
             }
         }
         
-        // Проверка диагоналей
         if (0..<gridDimension).allSatisfy({ gameBoard[$0][$0] == player }) {
             return (0..<gridDimension).map { ($0, $0) }
         }
