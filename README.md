@@ -18,7 +18,7 @@ TicTacToe-SPM представляет собой пакет для игры в 
 
    ```swift
    import UIKit
-   import TicTacToePackage
+   import TicTacToeGame
 
    class ViewController: UIViewController {
        private var ticTacToeView: TicTacToeView!
